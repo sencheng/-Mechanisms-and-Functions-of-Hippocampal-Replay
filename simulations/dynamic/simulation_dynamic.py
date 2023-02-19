@@ -5,30 +5,32 @@ import pickle
 import numpy as np
 import pyqtgraph as qg
 # framework imports
-from cobel.interfaces.oai_gym_gridworlds import OAIGymInterface
-from cobel.misc.gridworld_tools import makeEmptyField
+from cobel.agents.sfma import SFMAAgent
+from cobel.interfaces.gridworld import InterfaceGridworld
+from cobel.misc.gridworld_tools import make_empty_field
 from cobel.memory_modules.memory_utils.metrics import Euclidean
 # store experiment directory
 cwd = os.getcwd()
-# change directory
-os.chdir('../..')
-# custom imports
-from agents.sfma_agent import SFMAAgent
 
 # shall the system provide visual output while performing the experiments?
 # NOTE: do NOT use visualOutput=True in parallel experiments, visualOutput=True should only be used in explicit calls to 'singleRun'! 
 visual_output = False
 
 
-def single_run(euclidean_similarity=False, mode='default'):
+def single_run(euclidean_similarity=False, mode='default') -> dict:
     '''
     This method performs a single experimental run, i.e. one experiment.
     It has to be called by either a parallelization mechanism (without visual output),
     or by a direct call (in this case, visual output can be used).
     
-    | **Args**
-    | euclidean_similarity:         If true, experience similarity will be based on the euclidean distance between states.
-    | mode:                         The replay mode that will be used.
+    Parameters
+    ----------
+    euclidean_similarity :              If true, experience similarity will be based on the euclidean distance between states.
+    mode :                              The replay mode that will be used.
+    
+    Returns
+    ----------
+    replays :                           Dictionary containing the replays generated in each environment.
     '''
     np.random.seed()
     # this is the main window for visual output
@@ -39,14 +41,11 @@ def single_run(euclidean_similarity=False, mode='default'):
         main_window = qg.GraphicsWindow(title="workingTitle_Framework")
     
     # initialize world            
-    world = makeEmptyField(10, 10)
+    world = make_empty_field(10, 10)
     
     # a dictionary that contains all employed modules
     modules = {}
-    modules['rl_interface'] = OAIGymInterface(modules, world, visual_output, main_window)
-    
-    # amount of trials
-    numberOfTrials = 1
+    modules['rl_interface'] = InterfaceGridworld(modules, world, visual_output, main_window)
     
     # initialize RL agent
     rl_agent = SFMAAgent(interface_OAI=modules['rl_interface'], epsilon=0.3, beta=5,
@@ -92,7 +91,7 @@ def single_run(euclidean_similarity=False, mode='default'):
     invalid_transitions += [(45, 46), (55, 56), (65, 66), (75, 76)]
     invalid_transitions += [(46, 45), (56, 55), (66, 65), (76, 75)]
     modules['rl_interface'].update_transitions(invalid_transitions)
-    rl_agent.M.metric.updateTransitions()
+    rl_agent.M.metric.update_transitions()
     # replay in second environment
     print('Start Replays - Environment 2.')
     replays['env_2'] = []
@@ -111,7 +110,7 @@ def single_run(euclidean_similarity=False, mode='default'):
     invalid_transitions += [(33, 43), (34, 44), (35, 45), (36, 46), (53, 63), (54, 64), (55, 65), (56, 66)]
     invalid_transitions += [(43, 33), (44, 34), (45, 35), (46, 36), (63, 53), (64, 54), (65, 55), (66, 56)]
     modules['rl_interface'].update_transitions(invalid_transitions)
-    rl_agent.M.metric.updateTransitions()
+    rl_agent.M.metric.update_transitions()
     # replay in third environment
     print('Start Replays - Environment 3.')
     replays['env_3'] = []

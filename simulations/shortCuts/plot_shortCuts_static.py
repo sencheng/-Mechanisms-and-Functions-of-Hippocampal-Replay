@@ -4,7 +4,22 @@ import pickle
 import matplotlib.pyplot as plt
 
 
-def load_and_prepare(prefix, modes, use_recency):
+def load_and_prepare(prefix: str, modes: list, use_recency: list) -> (dict, dict, dict):
+    '''
+    This function loads and prepares the number of detected replays for different parameter combinations.
+    
+    Parameters
+    ----------
+    prefix :                            Prefix of the file that will be loaded.
+    modes :                             A list of replay modes.
+    use_recency :                       A list of recency flags.
+    
+    Returns
+    ----------
+    center_replays :                    Dictionary containing the number of center replays for different parameter combinations.
+    shortcut_replays :                  Dictionary containing the number of shortcut replays for different parameter combinations.
+    non_shortcut_replays :              Dictionary containing the number of non-shortcut replays for different parameter combinations.
+    '''
     analyzed_data = pickle.load(open('analysis/' + prefix + 'shortCuts_static.pkl', 'rb'))
     conditions = ['AA', 'RL', 'RA', 'AL']
     betas = [5]
@@ -23,7 +38,19 @@ def load_and_prepare(prefix, modes, use_recency):
     
     return center, sc, nsc
 
-def plot_details(data, file_name):
+def plot_details(data: dict, file_name: str):
+    '''
+    This function plots the number of detected shortcut replays on each trial for all conditions.
+    
+    Parameters
+    ----------
+    data :                              Dictionary containing the number of shortcut replays for different parameter combinations.
+    file_name :                         The name that the plot will be saved as.
+    
+    Returns
+    ----------
+    None
+    '''
     plt.figure(1, figsize=(12, 10))
     plt.subplots_adjust(hspace=0.9)
     plt.suptitle('Shortcut Replays Across Trials', fontsize=25)
@@ -49,7 +76,19 @@ def plot_details(data, file_name):
     plt.savefig(file_name + '.svg', dpi=200, bbox_inches='tight', transparent=True)
     plt.close('')
     
-def plot_pooled(data, file_name):
+def plot_pooled(data: dict, file_name: str):
+    '''
+    This function plots the number of detected shortcut replays for each conditions.
+    
+    Parameters
+    ----------
+    data :                              Dictionary containing the number of shortcut replays for different parameter combinations.
+    file_name :                         The name that the plot will be saved as.
+    
+    Returns
+    ----------
+    None
+    '''
     pooled = {}
     for beta in np.linspace(5, 15, 11):
         pooled[beta] = []

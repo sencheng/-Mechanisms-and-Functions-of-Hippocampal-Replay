@@ -1,19 +1,18 @@
 # basic imports
-import os
 import pickle
 import numpy as np
 # framework imports
-from cobel.misc.gridworld_tools import makeOpenField, makeGridworld
+from cobel.misc.gridworld_tools import make_open_field, make_gridworld
 
 
 # make linear track environment
-linear_track = makeOpenField(1, 10, goalState=0, reward=1)
-linear_track['startingStates'] = np.array([9])
+linear_track = make_open_field(1, 10, goal_state=0, reward=1)
+linear_track['starting_states'] = np.array([9])
 pickle.dump(linear_track, open('environments/linear_track.pkl', 'wb'))
 
 # make open field environment
-open_field = makeOpenField(10, 10, goalState=0, reward=1)
-open_field['startingStates'] = np.array([55])
+open_field = make_open_field(10, 10, goal_state=0, reward=1)
+open_field['starting_states'] = np.array([55])
 pickle.dump(open_field, open('environments/open_field.pkl', 'wb'))
 
 # make labyrinth environment
@@ -28,6 +27,6 @@ invalidTransitions += [(46, 36), (47, 37), (48, 38), (49, 39)]
 invalidTransitions += [(76, 86), (77, 87), (86, 76), (87, 77)]
 invalidTransitions += [(45, 46), (55, 56), (65, 66), (75, 76)]
 invalidTransitions += [(46, 45), (56, 55), (66, 65), (76, 75)]
-labyrinth = makeGridworld(10, 10, terminals=[0], rewards=np.array([[0, 1]]), invalidTransitions=invalidTransitions, goals=[0])
-labyrinth['startingStates'] = np.array([4])
+labyrinth = make_gridworld(10, 10, terminals=[0], rewards=np.array([[0, 1]]), invalid_transitions=invalidTransitions, goals=[0])
+labyrinth['starting_states'] = np.array([4])
 pickle.dump(labyrinth, open('environments/labyrinth.pkl', 'wb'))

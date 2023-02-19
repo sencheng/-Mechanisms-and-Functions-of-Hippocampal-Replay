@@ -4,38 +4,41 @@ import pickle
 import numpy as np
 import pyqtgraph as qg
 # framework imports
-from cobel.agents.dyna_q_agent import PMAAgent
-from cobel.interfaces.oai_gym_gridworlds import OAIGymInterface
+from cobel.agents.dyna_q import PMAAgent
+from cobel.agents.sfma import SFMAAgent
+from cobel.interfaces.gridworld import InterfaceGridworld
 from cobel.analysis.rl_monitoring.rl_performance_monitors import EscapeLatencyMonitor
 # store experiment directory
 cwd = os.getcwd()
-# change directory
-os.chdir('../..')
-# CoBel-RL framework
-from agents.sfma_agent import SFMAAgent
 
 # shall the system provide visual output while performing the experiments?
 # NOTE: do NOT use visualOutput=True in parallel experiments, visualOutput=True should only be used in explicit calls to 'singleRun'! 
 visual_output = False
 
 
-def single_run(world, no_replay=False, random_replay=False, gamma_SR=0.9, mode='default', trials=20, trial_steps=20, batch_size=20, agent_type='sfma', mask_actions=True):
+def single_run(world: dict, no_replay=False, random_replay=False, gamma_SR=0.9, mode='default',
+               trials=20, trial_steps=20, batch_size=20, agent_type='sfma', mask_actions=True) -> np.ndarray:
     '''
     This method performs a single experimental run, i.e. one experiment.
     It has to be called by either a parallelization mechanism (without visual output),
     or by a direct call (in this case, visual output can be used).
     
-    | **Args**
-    | world:                        The grid world environment that the agent will be trained in.
-    | no_replay:                    If true, the agent will not perform experience replay.
-    | random_replay:                If true, the agent will perform experience replay by sampling unformly from memory.
-    | gamma_SR:                     The discount factor used to compute the Successor Representation or Default Representation.
-    | mode:                         The SMA's replay mode that will be used.
-    | trials:                       The number of trials that the agent will be trained for.
-    | trials_steps:                 The maximum number of steps per trial.
-    | batch_size:                   The length of the replay batch.
-    | agent_type:                   The type of agent to be used (sma or pma).
-    | mask_actions:                 If true, the agent will ignore invalid actions (i.e. those for which the agent does not move).
+    Parameters
+    ----------
+    world :                             The grid world environment that the agent will be trained in.
+    no_replay :                         If true, the agent will not perform experience replay.
+    random_replay :                     If true, the agent will perform experience replay by sampling unformly from memory.
+    gamma_SR :                          The discount factor used to compute the Successor Representation or Default Representation.
+    mode :                              The SFMA's replay mode that will be used.
+    trials :                            The number of trials that the agent will be trained for.
+    trial_steps :                       The maximum number of steps per trial.
+    batch_size :                        The length of the replay batch.
+    agent_type :                        The type of agent to be used (sfma or pma).
+    mask_actions :                      If true, the agent will ignore invalid actions (i.e. those for which the agent does not move).
+    
+    Returns
+    ----------
+    escape_latency :                    The escape latency trace.
     '''
     np.random.seed()
     # this is the main window for visual output
@@ -47,7 +50,7 @@ def single_run(world, no_replay=False, random_replay=False, gamma_SR=0.9, mode='
     
     # a dictionary that contains all employed modules
     modules = {}
-    modules['rl_interface'] = OAIGymInterface(modules, world, visual_output, main_window)
+    modules['rl_interface'] = InterfaceGridworld(modules, world, visual_output, main_window)
     
     # initialize performance Monitor
     escape_latency_monitor = EscapeLatencyMonitor(trials, trial_steps, main_window, visual_output)
@@ -55,8 +58,8 @@ def single_run(world, no_replay=False, random_replay=False, gamma_SR=0.9, mode='
     rl_agent = None
     if agent_type == 'sfma':
         # initialize RL agent
-        rl_agent = SFMAAgent(interface_OAI=modules['rl_interface'], epsilon=0.1, beta=5,
-                             learning_rate=0.9, gamma=0.99, gamma_SR=gamma_SR, custom_callbacks={'on_trial_end': [escape_latency_monitor.update]})
+        rl_agent = SFMAAgent(interface_OAI=modules['rl_interface'], epsilon=0.1, beta=5, learning_rate=0.9,
+                             gamma=0.99, gamma_SR=gamma_SR, custom_callbacks={'on_trial_end': [escape_latency_monitor.update]})
         # common settings
         rl_agent.M.beta = 9
         rl_agent.M.C_step = 1.
@@ -77,6 +80,7 @@ def single_run(world, no_replay=False, random_replay=False, gamma_SR=0.9, mode='
         rl_agent = PMAAgent(interface_OAI=modules['rl_interface'], epsilon=0.1, beta=5,
                             learning_rate=0.9, gamma=0.99, custom_callbacks={'on_trial_end': [escape_latency_monitor.update]})
         rl_agent.M.beta = 9
+        rl_agent.M.legacy_gain = True
         rl_agent.mask_actions = mask_actions
         # initialize experience
         for state in range(world['states']):
@@ -123,7 +127,7 @@ if __name__ == '__main__':
                 sfma_dyn[gamma] += [single_run(world, no_replay=False, random_replay=False, gamma_SR=gamma, mode='dynamic', trials=trials, trial_steps=trial_steps, batch_size=batch_size, agent_type='sfma', mask_actions=True)]
             random += [single_run(world, no_replay=False, random_replay=True, gamma_SR=gamma, mode='default', trials=trials, trial_steps=trial_steps, batch_size=batch_size, agent_type='sfma', mask_actions=True)]
             online += [single_run(world, no_replay=True, random_replay=False, gamma_SR=gamma, mode='default', trials=trials, trial_steps=trial_steps, batch_size=batch_size, agent_type='sfma', mask_actions=True)]
-            pma += [single_run(world, no_replay=False, random_replay=False, gamma_SR=gamma, mode='default', trials=trials, trial_steps=trial_steps, batch_size=batch_size, agent_type='pma', mask_actions=True)]
+            pma += [single_run(world, no_replay=False, random_replay=False, gamma_SR=0.9, mode='default', trials=trials, trial_steps=trial_steps, batch_size=batch_size, agent_type='pma', mask_actions=True)]
         pickle.dump(sfma_def, open(cwd + '/data/' + environment + '_SFMA_default.pkl', 'wb'))
         pickle.dump(sfma_rev, open(cwd + '/data/' + environment + '_SFMA_reverse.pkl', 'wb'))
         pickle.dump(sfma_dyn, open(cwd + '/data/' + environment + '_SFMA_dynamic.pkl', 'wb'))

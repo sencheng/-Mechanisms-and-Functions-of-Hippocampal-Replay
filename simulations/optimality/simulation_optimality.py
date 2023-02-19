@@ -4,32 +4,36 @@ import pickle
 import numpy as np
 import pyqtgraph as qg
 # framework imports
-from cobel.interfaces.oai_gym_gridworlds import OAIGymInterface
+from cobel.agents.sfma import SFMAAgent
+from cobel.interfaces.gridworld import InterfaceGridworld
+from cobel.analysis.rl_monitoring.replay_monitors import OptimalityMonitor
 # store experiment directory
 cwd = os.getcwd()
-# change directory
-os.chdir('../..')
-# CoBel-RL framework
-from agents.sfma_agent import SFMAAgent
-from monitors.replay_monitors import OptimalityMonitor
+
 
 # shall the system provide visual output while performing the experiments?
 # NOTE: do NOT use visualOutput=True in parallel experiments, visualOutput=True should only be used in explicit calls to 'singleRun'! 
 visual_output = False
 
 
-def single_run(world, mode='default', trials=20, trial_steps=20, batch_size=20):
+def single_run(world: dict, mode='default', trials=20, trial_steps=20, batch_size=20) -> (np.ndarray, np.ndarray):
     '''
     This method performs a single experimental run, i.e. one experiment.
     It has to be called by either a parallelization mechanism (without visual output),
     or by a direct call (in this case, visual output can be used).
     
-    | **Args**
-    | world:                        The grid world environment that the agent will be trained in.
-    | mode:                         The SMA's replay mode that will be used.
-    | trials:                       The number of trials that the agent will be trained for.
-    | trials_steps:                 The maximum number of steps per trial.
-    | batch_size:                   The length of the replay batch.
+    Parameters
+    ----------
+    world :                             The gridworld environment that the agent will be trained in.
+    mode :                              The SFMA's replay mode that will be used.
+    trials :                            The number of trials that the agent will be trained for.
+    trial_steps :                       The maximum number of steps per trial.
+    batch_size :                        The length of the replay batch.
+    
+    Returns
+    ----------
+    optimality_trace :                  The optimality trace.
+    gain_trace :                        The gain trace.
     '''
     np.random.seed()
     # this is the main window for visual output
@@ -41,15 +45,14 @@ def single_run(world, mode='default', trials=20, trial_steps=20, batch_size=20):
     
     # a dictionary that contains all employed modules
     modules = {}
-    modules['rl_interface'] = OAIGymInterface(modules, world, visual_output, main_window)
+    modules['rl_interface'] = InterfaceGridworld(modules, world, visual_output, main_window)
     
     # initialize performance Monitor
     optimality_monitor = OptimalityMonitor(trials, main_window, visual_output)
     #optimality_monitor.policy = 'softmax'
     
     # initialize RL agent
-    rl_agent = SFMAAgent(interface_OAI=modules['rl_interface'], epsilon=0.1, beta=5,
-                         learning_rate=0.9, gamma=0.99, gamma_SR=0.1,
+    rl_agent = SFMAAgent(interface_OAI=modules['rl_interface'], epsilon=0.1, beta=5, learning_rate=0.9, gamma=0.99, gamma_SR=0.1,
                          custom_callbacks={'on_replay_begin': [optimality_monitor.update_local_Q], 'on_replay_end': [optimality_monitor.update]})
     # common settings
     rl_agent.M.beta = 9

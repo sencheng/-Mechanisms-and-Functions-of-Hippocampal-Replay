@@ -3,12 +3,17 @@ import numpy as np
 import pickle
 
 
-def recoverStates(replay):
+def recoverStates(replay: list) -> np.ndarray:
     '''
     This function extracts the states of replayed experiences.
     
-    | **Args**
-    | replay:                       A sequence of replayed experiences.
+    Parameters
+    ----------
+    replay :                            A sequence of replayed experiences.
+    
+    Returns
+    ----------
+    states :                            The recovered states.
     '''
     states = []
     for experience in replay:
@@ -16,12 +21,19 @@ def recoverStates(replay):
         
     return np.array(states)
 
-def match_templates(replays):
+def match_templates(replays) -> (int, int, list):
     '''
     This function computes the fraction of replays that contained at least one state of the center.
     
-    | **Args**
-    | replays:                      Replays to be analyzed.
+    Parameters
+    ----------
+    replays :                           Replays to be analyzed.
+    
+    Returns
+    ----------
+    fraction :                          The number of center replays.
+    fraction_sequence :                 The number of detected sequences.
+    idx :                               The indeces of replays with detected sequences.
     '''
     templates = {}
     templates['bwdCenter'] = np.array([16, 27, 38, 49, 60])
@@ -58,14 +70,20 @@ def match_templates(replays):
         
     return fraction, fraction_seq, idx
 
-def checkSequences(replays, sequences, idx, error_max=0.25):
+def checkSequences(replays: list, sequences: dict, idx: list, error_max=0.25) -> list:
     '''
     This function determines the parts of the environment which were replayed.
     
-    | **Args**
-    | replays:                      Replays to be analyzed.
-    | sequences:                    The sequences which should be looked for.
-    | error_max:                    Error threshold.
+    Parameters
+    ----------
+    replays :                           Replays to be analyzed.
+    sequences :                         The sequences which should be looked for.
+    idx :                               The indeces of the replays that will be analyzed.
+    error_max :                         Match error threshold.
+    
+    Returns
+    ----------
+    results :                           The determined replay matches.
     '''
     results = []
     for r, replay in enumerate(replays):
@@ -85,13 +103,22 @@ def checkSequences(replays, sequences, idx, error_max=0.25):
         
     return results
 
-def checkShortcuts(seq, shortcuts, nonshortcuts):
+def checkShortcuts(seq: list, shortcuts: dict, nonshortcuts: dict) -> (int, int, list, int):
     '''
     This function determines the fraction of shortcuts replayed.
     
-    | **Args**
-    | seq:                          Sequences found for each replay.
-    | shortcuts:                    The shortcuts which should be looked for.
+    Parameters
+    ----------
+    seq :                               Sequences found for each replay.
+    shortcuts :                         The shortcuts which should be looked for.
+    nonshortcuts :                      The non-shortcuts which should be looked for.
+    
+    Returns
+    ----------
+    number_shortcuts :                  The number of shortcuts.
+    number_non_shortcuts :              The number of non-shortcuts.
+    idx_shortcuts :                     The indeces of replays containing shortcut replays.
+    number_all :                        The number of all sequences.
     '''
     numberShortCuts, numberNonShortCuts, numberAll = 0, 0, 0
     idx_shortcuts = []
@@ -117,7 +144,21 @@ def checkShortcuts(seq, shortcuts, nonshortcuts):
     return numberShortCuts, numberNonShortCuts, idx_shortcuts, numberAll
 
 
-def analyze(sequences, shortcuts, nonshortcuts, prefix=''):
+def analyze(sequences, shortcuts, nonshortcuts, prefix='') -> dict:
+    '''
+    This function analyses the occurence of shortcut replays.
+    
+    Parameters
+    ----------
+    sequences :                         Sequences templates used for matching.
+    shortcuts :                         The shortcuts which should be looked for.
+    nonshortcuts :                      The non-shortcuts which should be looked for.
+    prefix :                            The prefix of the files that will be analyzed.
+    
+    Returns
+    ----------
+    short_cuts :                        The results of the analysis.
+    '''
     betas = np.linspace(5, 15, 11)
     modes = ['default', 'reverse']
     use_recency = [True, False]
