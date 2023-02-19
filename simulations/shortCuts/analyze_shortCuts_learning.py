@@ -4,7 +4,19 @@ import pickle
 import matplotlib.pyplot as plt
 
     
-def plot(data, file_name):
+def plot(data: dict, file_name: str):
+    '''
+    This function plots the learning performance of agents trained with SFMA and random replay.
+    
+    Parameters
+    ----------
+    data :                              Dictionary containing the learning performance for different agents.
+    file_name :                         The name that the plot will be saved as.
+    
+    Returns
+    ----------
+    None
+    '''
     plt.figure(1)
     plt.title('Learning Performance', fontsize=20)
     plt.plot(np.arange(200) + 1, np.mean(np.array(data['reverse']['rewards'] * 100), axis=0), color='g', linestyle='--', label='SFMA (Reverse)')
@@ -27,10 +39,10 @@ def plot(data, file_name):
     plt.close('all')    
             
     
-sma = pickle.load(open('data/sma_learning.pkl', 'rb'))
+sfma = pickle.load(open('data/sfma_learning.pkl', 'rb'))
 random = pickle.load(open('data/random_learning.pkl', 'rb'))
 
 
 for recency in [True, False]:
-    data = {'default': sma['default'][recency], 'reverse': sma['reverse'][recency], 'random': random}
+    data = {'default': sfma['default'][recency], 'reverse': sfma['reverse'][recency], 'random': random}
     plot(data, 'plots/learning_recency_' + ('Y' if recency else 'N'))

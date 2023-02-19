@@ -1,15 +1,19 @@
 # basic imports
 import numpy as np
 import pickle
-import matplotlib.pyplot as plt
 
 
-def recover_states(replay):
+def recover_states(replay: list) -> np.ndarray:
     '''
     This function extracts the states of replayed experiences.
     
-    | **Args**
-    | replay:                       A sequence of replayed experiences.
+    Parameters
+    ----------
+    replay :                            A sequence of replayed experiences.
+    
+    Returns
+    ----------
+    states :                            The recovered sequence of replayed states.
     '''
     states = []
     for experience in replay:
@@ -17,14 +21,19 @@ def recover_states(replay):
         
     return np.array(states)
 
-def analyze_replays(replays, templates, error_max=0.4):
+def analyze_replays(replays: list, templates: dict, error_max=0.4) -> dict:
     '''
     This function determines the parts of the environment which were replayed.
     
-    | **Args**
-    | replays:                      Replays to be analyzed.
-    | templates:                    The replay sequences which should be looked for.
-    | error_max:                    The maximum fraction of template mismatches.
+    Parameters
+    ----------
+    replays :                           A list of replays.
+    templates :                         The replay sequences which should be looked for.
+    error_max :                         The maximum fraction of template mismatches.
+    
+    Returns
+    ----------
+    matches :                           Dictionary containing the number of matches for each template.
     '''
     matches = {'cued': 0, 'uncued': 0, 'stem': 0, 'fwdCued': 0, 'bwdCued': 0}
     for replay in replays:
@@ -52,12 +61,17 @@ def analyze_replays(replays, templates, error_max=0.4):
                         
     return matches
 
-def compute_reactivation_map(replays):
+def compute_reactivation_map(replays: list) -> np.ndarray:
     '''
     This function computes the reactivation probabilities for all states.
     
-    | **Args**
-    | replays:                      Replays to be analyzed.
+    Parameters
+    ----------
+    replays :                           A list of replays.
+    
+    Returns
+    ----------
+    R :                                 The computed reactivation map.
     '''
     R = np.zeros((10, 7))
     for replay in replays:
@@ -101,4 +115,4 @@ if __name__ == "__main__":
                         R_dir[i, j] = 100 * matches['fwdCued']/(matches['fwdCued'] + matches['bwdCued'])
             # store fractions
             pickle.dump({'preplay': R_cued, 'fwd': R_dir, 'fractions': attention_cued, 'R': attention_arms},
-                        open('data/analyzed_preplay_gamma_' + str(gamma) + '_mode_' + mode + '.pkl', 'wb'))    
+                        open('data/analyzed_preplay_gamma_' + str(gamma) + '_mode_' + mode + '.pkl', 'wb'))

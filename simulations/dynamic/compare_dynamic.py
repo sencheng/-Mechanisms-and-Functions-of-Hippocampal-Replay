@@ -4,13 +4,19 @@ import pickle
 import matplotlib.pyplot as plt
             
 
-def countInvalidTransitions(invalidTransitions, mode='default'):
+def countInvalidTransitions(invalid_transitions: list, mode='default') -> dict:
     '''
     This function computes the fraction of invalid transitions
     that were replayed in the second and third environment.
     
-    | **Args**
-    | invalidTransitions:           Dictionary containing the invalid transition for environment 2 and environment 3.
+    Parameters
+    ----------
+    invalid_transitions :               Dictionary containing the invalid transition for environment 2 and environment 3.
+    mode :                              The replay mode for which reactivations will be loaded.
+    
+    Returns
+    ----------
+    fractions :                         Dictionary containing the fraction of invalid transitions that were replayed for different similarity metrics.
     '''
     fractions = {'DR': {2: 0, 3: 0}, 'euclidean': {2: 0, 3: 0}}
     for d in ['DR', 'euclidean']:
@@ -24,19 +30,25 @@ def countInvalidTransitions(invalidTransitions, mode='default'):
             for replay in replays['env_' + str(i + 2)]:
                 for e, experience in enumerate(replay):
                     t1, t2 = (experience['state'], replay[e - 1]['state']), (replay[e - 1]['state'], experience['state'])
-                    if t1 in invalidTransitions[i + 2] or t2 in invalidTransitions[i + 2]:
+                    if t1 in invalid_transitions[i + 2] or t2 in invalid_transitions[i + 2]:
                         invalid += 1
                     E += 1
             fractions[d][i + 2] = invalid/E
     
     return fractions
 
-def plot(fractions, suffix='_default'):
+def plot(fractions: dict, suffix='_default'):
     '''
     This function plots the fractions of invalid transitions for DR and Euclidean similarity metrics.
     
-    | **Args**
-    | fractions:                    Dictionary containing the fractions of invalid transitions.
+    Parameters
+    ----------
+    fractions :                         Dictionary containing the fraction of invalid transitions that were replayed for different similarity metrics.
+    suffix :                            The suffix of the file that will be saved.
+    
+    Returns
+    ----------
+    None
     '''
     DR = np.array([fractions['DR'][2], fractions['DR'][3]]) * 100
     Euc = np.array([fractions['euclidean'][2], fractions['euclidean'][3]]) * 100

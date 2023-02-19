@@ -5,12 +5,17 @@ import pickle
 import matplotlib.pyplot as plt
 
 
-def recover_states(replay):
+def recover_states(replay: list) -> np.ndarray:
     '''
     This function extracts the states of replayed experiences.
     
-    | **Args**
-    | replay:                       A sequence of replayed experiences.
+    Parameters
+    ----------
+    replay :                            A sequence of replayed experiences.
+    
+    Returns
+    ----------
+    states :                            The recovered states.
     '''
     states = []
     for experience in replay:
@@ -19,14 +24,19 @@ def recover_states(replay):
     return np.array(states)
 
 
-def plot(replays, condition, beta):
+def plot(replays: list, condition: str, beta: float):
     '''
     This function plots example replay sequences.
     
-    | **Args**
-    | replays:                      A list of replays (must be of length four or greater!).
-    | condition:                    The simulation condition identifier.
-    | beta:                         The inverse temperature parameter used by the replay mechanism.
+    Parameters
+    ----------
+    replays :                           A list of replays (must be of length four or greater!).
+    condition :                         The simulation condition identifier.
+    beta :                              The inverse temperature parameter used by the replay mechanism.
+    
+    Returns
+    ----------
+    None
     '''
     maps = np.zeros((4, 7, 11))
     for i in range(4):

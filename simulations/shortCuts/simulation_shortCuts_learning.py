@@ -4,25 +4,31 @@ import numpy as np
 import pickle
 import pyqtgraph as qg
 # framework imports
-from cobel.interfaces.oai_gym_gridworlds import OAIGymInterface
+from cobel.agents.sfma import SFMAAgent
+from cobel.interfaces.gridworld import InterfaceGridworld
 from cobel.analysis.rl_monitoring.rl_performance_monitors import RewardMonitor, EscapeLatencyMonitor
-from cobel.misc.gridworld_tools import makeGridworld
+from cobel.misc.gridworld_tools import make_gridworld
 # change directory
 cwd = os.getcwd()
-os.chdir('../..')
-# custom imports
-from agents.sfma_agent import SFMAAgent
 
 # shall the system provide visual output while performing the experiments?
 # NOTE: do NOT use visualOutput=True in parallel experiments, visualOutput=True should only be used in explicit calls to 'singleRun'! 
 visual_output = False
 
 
-def define_run_patterns():
+def define_run_patterns() -> dict:
     '''
     This function predefines run patterns for the agent (i.e. the chosen transition).
     The run patterns are defined so that they can used to reproduce the experimental
     conditions as described by Gupta et al. (2010).
+    
+    Parameters
+    ----------
+    None
+    
+    Returns
+    ----------
+    run_patterns :                      A dictionary containing the predefined run patterns.
     '''
     run_patterns = {}
     # start to left (used to reproduce alternating laps and left laps conditions)
@@ -40,18 +46,23 @@ def define_run_patterns():
     
     return run_patterns
 
-def single_run(run_patterns, gamma_DR, mode, recency, random_replay=False):
+def single_run(run_patterns: dict, gamma_DR: float, mode: str, recency: bool, random_replay=False) -> (np.ndarray, np.ndarray):
     '''
     This function simulates a virutal version of the experimental paradigm by Gupta et al. (2010).
-    Simulations are repeated for different model parameters (i.e. temperature, replay mode and effects of recency).
-    The discount factor is kept fixed.
+    An agent is trained to first run laps on one side of the maze, and then trained to run laps on the other side.
     
-    | **Args**
-    | run_patterns:                 The set of predefined run patterns.
-    | gamma_DR:                     The discount factor used for the Default Representation.
-    | mode:                         The replay mode that will be used.
-    | recency:                      If true, priority ratings also depend on the recency of experience.
-    | random_replay:                If true, experiences are replayed randomly.
+    Parameters
+    ----------
+    run_patterns :                      The set of predefined run patterns. Used to derive the action mask.
+    gamma_DR :                          The discount factor used for the Default Representation.
+    mode :                              The replay mode that will be used.
+    recency :                           If true, priority ratings also depend on the recency of experience.
+    random_replay :                     If true, experiences are replayed randomly.
+    
+    Returns
+    ----------
+    reward :                            The reward trace.
+    escape_latency :                    The escape latency trace.
     '''
     np.random.seed()
     # this is the main window for visual output
@@ -77,11 +88,11 @@ def single_run(run_patterns, gamma_DR, mode, recency, random_replay=False):
     invalid_transitions += [(67, 56), (68, 57), (69, 58), (70, 59), (72, 61), (73, 62), (74, 63), (75, 64)]
     
     # initialize world            
-    world = makeGridworld(7, 11, terminals=[43, 33], rewards=np.array([[43, 1]]), goals=[43], startingStates=[71], invalidTransitions=invalid_transitions)    
+    world = make_gridworld(7, 11, terminals=[43, 33], rewards=np.array([[43, 1]]), goals=[43], starting_states=[71], invalid_transitions=invalid_transitions)    
     
     # a dictionary that contains all employed modules
     modules = {}
-    modules['rl_interface'] = OAIGymInterface(modules, world, visual_output, main_window)
+    modules['rl_interface'] = InterfaceGridworld(modules, world, visual_output, main_window)
     
     # initialize performance Monitor
     escape_latency_monitor = EscapeLatencyMonitor(200, 30, main_window, visual_output)
@@ -158,7 +169,7 @@ if __name__ == '__main__':
                 R += [rewards]
                 S += [steps]
             data[mode][recency] = {'rewards': R, 'steps': S}
-    pickle.dump(data, open(cwd + '/data/sma_learning.pkl', 'wb'))
+    pickle.dump(data, open(cwd + '/data/sfma_learning.pkl', 'wb'))
     
     # random replay
     print('Running simulations with random replay.')

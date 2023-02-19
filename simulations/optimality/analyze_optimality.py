@@ -4,9 +4,17 @@ import pickle
 import matplotlib.pyplot as plt
 
 
-def load_data():
+def load_data() -> dict:
     '''
     This function loads simulation data and prepares it.
+    
+    Parameters
+    ----------
+    None
+    
+    Returns
+    ----------
+    data :                              The prepared data.
     '''
     data = {}
     for env in ['linear_track', 'open_field', 'labyrinth']:
@@ -21,16 +29,20 @@ def load_data():
             
     return data
     
-def plot_optimality(linear_track, open_field, labyrinth):
+def plot_optimality(linear_track: dict, open_field: dict, labyrinth: dict):
     '''
     This function plots the learning performance of RL agents using our replay method
-    as well as online, randam and PMA agents for comparison.
+    as well as online, random and PMA agents for comparison.
     
-    | **Args**
-    | linear_track:                 Data collected in linear track environment for all agent types.
-    | open_field:                   Data collected in open field environment for all agent types.
-    | labyrinth:                    Data collected in labyrinth environment for all agent types.
-    | suffix:                       Optional suffix that will be applied to the file name.
+    Parameters
+    ----------
+    linear_track :                      Data collected in linear track environment for all agent types.
+    open_field :                        Data collected in open field environment for all agent types.
+    labyrinth :                         Data collected in labyrinth environment for all agent types.
+    
+    Returns
+    ----------
+    None
     '''
     plt.figure(1, figsize=(5, 5))
     plt.subplots_adjust(hspace=0.7)

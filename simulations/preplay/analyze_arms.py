@@ -4,7 +4,19 @@ import pickle
 import matplotlib.pyplot as plt
 
 
-def compute_action_probabilities(q, beta):
+def compute_action_probabilities(q: np.ndarray, beta: float) -> np.ndarray:
+    '''
+    This function computes the action selection probabilities for a given set of Q values under softmax policy.
+    
+    Parameters
+    ----------
+    q :                                 The Q values.
+    beta :                              The softmax function's inverse temperature parameter.
+    
+    Returns
+    ----------
+    p :                                 The action selection probabilities.
+    '''
     q = q[np.array([0, 2])]
     if np.sum(q == 0) == q.shape[0]:
         q.fill(1)
@@ -13,12 +25,17 @@ def compute_action_probabilities(q, beta):
     
     return p
 
-def recover_states(replay):
+def recover_states(replay: list) -> np.ndarray:
     '''
     This function extracts the states of replayed experiences.
     
-    | **Args**
-    | replay:                       A sequence of replayed experiences.
+    Parameters
+    ----------
+    replay :                            A sequence of replayed experiences.
+    
+    Returns
+    ----------
+    states :                            The recovered sequence of replayed states.
     '''
     states = []
     for experience in replay:
@@ -26,7 +43,18 @@ def recover_states(replay):
         
     return np.array(states)
 
-def reactivations(replays):
+def reactivations(replays: list) -> np.ndarray:
+    '''
+    This function computes a reactivation map from a list of replays.
+    
+    Parameters
+    ----------
+    replays :                           A list of replays.
+    
+    Returns
+    ----------
+    M :                                 The computed reactivation map.
+    '''
     M = np.zeros((10, 7))
     for replay in replays:
         states = recover_states(replay)
@@ -37,7 +65,19 @@ def reactivations(replays):
             
     return M
 
-def plot(M, fileName):
+def plot(M: np.ndarray, file_name: str):
+    '''
+    This function plots the reactivation map.
+    
+    Parameters
+    ----------
+    M :                                 The reactivation map.
+    file_name :                         This name of the file that the plot will be saved as.
+    
+    Returns
+    ----------
+    None
+    '''
     M /= np.sum(M)
     # define environmental borders
     wall_1_x, wall_1_y = [0, 7], [3, 3]
@@ -65,11 +105,23 @@ def plot(M, fileName):
     plt.ylabel('Y Position', fontsize=15)
     cbar = plt.colorbar()
     cbar.set_label('Fraction [%]', rotation=270, fontsize=15, labelpad=20)
-    plt.savefig(fileName + '.png', dpi=200, bbox_inches='tight', transparent=True)
-    plt.savefig(fileName + '.svg', dpi=200, bbox_inches='tight', transparent=True)
+    plt.savefig(file_name + '.png', dpi=200, bbox_inches='tight', transparent=True)
+    plt.savefig(file_name + '.svg', dpi=200, bbox_inches='tight', transparent=True)
     plt.close('all')
     
-def plot_fractions(R_cued, suffix=''):
+def plot_fractions(R_cued: np.ndarray, suffix=''):
+    '''
+    This function plots the fractions of cued arm replays as a heatmap.
+    
+    Parameters
+    ----------
+    R_cued :                            The fractions.
+    suffix :                            This suffix with which the plot will be saved as.
+    
+    Returns
+    ----------
+    None
+    '''
     plt.figure(1, figsize=(5, 4))
     plt.pcolor(R_cued, cmap='hot', vmin=0)
     plt.title('Cued Arm Preplays', fontsize=16)

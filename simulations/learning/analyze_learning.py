@@ -4,9 +4,17 @@ import pickle
 import matplotlib.pyplot as plt
 
 
-def load_data():
+def load_data() -> dict:
     '''
     This function loads simulation data and prepares it.
+    
+    Parameters
+    ----------
+    None
+    
+    Returns
+    ----------
+    data :                              The prepared simulation data.
     '''
     data = {}
     for env in ['linear_track', 'open_field', 'labyrinth']:
@@ -27,22 +35,28 @@ def load_data():
             
     return data
 
-def plot_separate(linear_track, open_field, labyrinth, suffix=''):
+def plot_separate(linear_track: dict, open_field: dict, labyrinth: dict, suffix=''):
     '''
     This function plots the learning performance of RL agents using our replay method.
     Performance is plotted separately for different Default Representation discount factors.
     
-    | **Args**
-    | linear_track:                 Data collected in linear track environment for our model.
-    | open_field:                   Data collected in open field environment for our model.
-    | labyrinth:                    Data collected in labyrinth environment for our model.
-    | suffix:                       Optional suffix that will be applied to the file name.
+    Parameters
+    ----------
+    linear_track :                      Data collected in linear track environment for our model.
+    open_field :                        Data collected in open field environment for our model.
+    labyrinth :                         Data collected in labyrinth environment for our model.
+    suffix :                            Optional suffix that will be applied to the file name.
+    
+    Returns
+    ----------
+    None
     '''
+    colors = plt.cm.jet(np.linspace(0, 1, len(linear_track)))
     plt.figure(1, figsize=(5, 5))
     plt.subplots_adjust(hspace=0.7)
     plt.subplot(3, 1, 1)
-    for gamma in linear_track:
-        plt.plot(np.arange(20) + 1, np.mean(np.array(linear_track[gamma]), axis=0), label=gamma)
+    for gamma, color in zip(linear_track, colors):
+        plt.plot(np.arange(20) + 1, np.mean(np.array(linear_track[gamma]), axis=0), label=gamma, color=color)
     plt.axhline(9, linestyle='--', color='grey')
     plt.xticks(np.array([1, 5, 10, 15, 20]), np.array([1, 5, 10, 15, 20]))
     plt.ylim(0, None)
@@ -52,8 +66,8 @@ def plot_separate(linear_track, open_field, labyrinth, suffix=''):
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     plt.subplot(3, 1, 2)
-    for gamma in open_field:
-        plt.plot(np.arange(100) + 1, np.mean(np.array(open_field[gamma]), axis=0), label=gamma)
+    for gamma, color in zip(open_field, colors):
+        plt.plot(np.arange(100) + 1, np.mean(np.array(open_field[gamma]), axis=0), label=gamma, color=color)
     plt.axhline(10, linestyle='--', color='grey')
     plt.xticks(np.array([1, 20, 40, 60, 80, 100]), np.array([1, 20, 40, 60, 80, 100]))
     plt.ylim(0, None)
@@ -64,8 +78,8 @@ def plot_separate(linear_track, open_field, labyrinth, suffix=''):
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     plt.subplot(3, 1, 3)
-    for gamma in labyrinth:
-        plt.plot(np.arange(100) + 1, np.mean(np.array(labyrinth[gamma]), axis=0), label=gamma)
+    for gamma, color in zip(labyrinth, colors):
+        plt.plot(np.arange(100) + 1, np.mean(np.array(labyrinth[gamma]), axis=0), label=gamma, color=color)
     plt.axhline(18, linestyle='--', color='grey')
     plt.xticks(np.array([1, 20, 40, 60, 80, 100]), np.array([1, 20, 40, 60, 80, 100]))
     plt.ylim(0, None)
@@ -82,16 +96,21 @@ def plot_separate(linear_track, open_field, labyrinth, suffix=''):
     plt.savefig('plots/learning_separate' + suffix + '.svg', dpi=200, bbox_inches='tight')
     plt.close('all')
 
-def plot_learning(linear_track, open_field, labyrinth, suffix=''):
+def plot_learning(linear_track: dict, open_field: dict, labyrinth: dict, suffix=''):
     '''
     This function plots the learning performance of RL agents using our replay method
     as well as online, randam and PMA agents for comparison.
     
-    | **Args**
-    | linear_track:                 Data collected in linear track environment for all agent types.
-    | open_field:                   Data collected in open field environment for all agent types.
-    | labyrinth:                    Data collected in labyrinth environment for all agent types.
-    | suffix:                       Optional suffix that will be applied to the file name.
+    Parameters
+    ----------
+    linear_track :                      Data collected in linear track environment for all agent types.
+    open_field :                        Data collected in open field environment for all agent types.
+    labyrinth :                         Data collected in labyrinth environment for all agent types.
+    suffix :                            Optional suffix that will be applied to the file name.
+    
+    Returns
+    ----------
+    None
     '''
     plt.figure(1, figsize=(5, 5))
     plt.subplots_adjust(hspace=0.7)
@@ -143,16 +162,21 @@ def plot_learning(linear_track, open_field, labyrinth, suffix=''):
     plt.savefig('plots/learning' + suffix + '.svg', dpi=200, bbox_inches='tight')
     plt.close('all')
     
-def plot_learning_final(linear_track, open_field, labyrinth, suffix=''):
+def plot_learning_final(linear_track: dict, open_field: dict, labyrinth: dict, suffix=''):
     '''
     This function plots the learning performance of RL agents using our replay method
     as well as online, randam and PMA agents for comparison.
     
-    | **Args**
-    | linear_track:                 Data collected in linear track environment for all agent types.
-    | open_field:                   Data collected in open field environment for all agent types.
-    | labyrinth:                    Data collected in labyrinth environment for all agent types.
-    | suffix:                       Optional suffix that will be applied to the file name.
+    Parameters
+    ----------
+    linear_track :                      Data collected in linear track environment for all agent types.
+    open_field :                        Data collected in open field environment for all agent types.
+    labyrinth :                         Data collected in labyrinth environment for all agent types.
+    suffix :                            Optional suffix that will be applied to the file name.
+    
+    Returns
+    ----------
+    None
     '''
     plt.figure(1, figsize=(5, 5))
     plt.subplots_adjust(hspace=0.7)

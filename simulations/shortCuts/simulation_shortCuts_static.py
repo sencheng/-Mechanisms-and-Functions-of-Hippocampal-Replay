@@ -4,24 +4,30 @@ import numpy as np
 import pickle
 import pyqtgraph as qg
 # framework imports
-from cobel.interfaces.oai_gym_gridworlds import OAIGymInterface
-from cobel.misc.gridworld_tools import makeGridworld
+from cobel.agents.sfma import SFMAAgent
+from cobel.interfaces.gridworld import InterfaceGridworld
+from cobel.misc.gridworld_tools import make_gridworld
 # change directory
 cwd = os.getcwd()
-os.chdir('../..')
-# custom imports
-from agents.sfma_agent import SFMAAgent
 
 # shall the system provide visual output while performing the experiments?
 # NOTE: do NOT use visualOutput=True in parallel experiments, visualOutput=True should only be used in explicit calls to 'singleRun'! 
 visual_output = False
 
 
-def define_run_patterns():
+def define_run_patterns() -> dict:
     '''
     This function predefines run patterns for the agent (i.e. the chosen transition).
     The run patterns are defined so that they can used to reproduce the experimental
     conditions as described by Gupta et al. (2010).
+    
+    Parameters
+    ----------
+    None
+    
+    Returns
+    ----------
+    run_patterns :                      A dictionary containing the predefined run patterns.
     '''
     run_patterns = {}
     # start to left (used to reproduce alternating laps and left laps conditions)
@@ -39,12 +45,17 @@ def define_run_patterns():
     
     return run_patterns
 
-def define_conditions(block_length=10):
+def define_conditions(block_length=10) -> dict:
     '''
     This function defines the different experimental conditions as described by Gupta et al. (2010).
     
-    | **Args**
-    | block_length:                 The number of trials a condition block lasts.
+    Parameters
+    ----------
+    block_length :                      The number of trials a condition block lasts.
+    
+    Returns
+    ----------
+    conditions :                        A dictionary containing the different experimental conditions.
     '''
     # ensure valid block length
     if block_length == 1:
@@ -76,21 +87,27 @@ def define_conditions(block_length=10):
     
     return conditions
 
-def single_run(run_patterns, conditions, betas, gamma_DR, modes, use_recency, replays_per_trial=1, prefix=''):
+def single_run(run_patterns: dict, conditions: dict, betas: list, gamma_DR: float,
+               modes: list, use_recency: list, replays_per_trial=1, prefix=''):
     '''
     This function simulates a virutal version of the experimental paradigm by Gupta et al. (2010).
     Simulations are repeated for different model parameters (i.e. temperature, replay mode and effects of recency).
     The discount factor is kept fixed.
     
-    | **Args**
-    | run_patterns:                 The set of predefined run patterns.
-    | conditions:                   The experimental conditions represented as lists of run patterns.
-    | betas:                        A list of temperature parameters which controls the effect of priority rating during replay.
-    | gamma_DR:                     The discount factor used for the Default Representation.
-    | modes:                        A list of replay modes to be used.
-    | use_recency:                  A list of recency flags. If the flag is true, the recency of experience will affect the priority rating.
-    | replays_per_trial:            The number of replays that should generated after each replay.
-    | prefix:                       Optional prefix which will be prepended to the file name.
+    Parameters
+    ----------
+    run_patterns :                      The set of predefined run patterns.
+    conditions :                        The experimental conditions represented as lists of run patterns.
+    betas :                             A list of temperature parameters which controls the effect of priority rating during replay.
+    gamma_DR :                          The discount factor used for the Default Representation.
+    modes :                             A list of replay modes to be used.
+    use_recency :                       A list of recency flags. If the flag is true, the recency of experience will affect the priority rating.
+    replays_per_trial :                 The number of replays that should generated after each replay.
+    prefix :                            Optional prefix which will be prepended to the file name.
+    
+    Returns
+    ----------
+    None
     '''
     np.random.seed()
     # this is the main window for visual output
@@ -116,11 +133,11 @@ def single_run(run_patterns, conditions, betas, gamma_DR, modes, use_recency, re
     invalid_transitions += [(67, 56), (68, 57), (69, 58), (70, 59), (72, 61), (73, 62), (74, 63), (75, 64)]
     
     # initialize world            
-    world = makeGridworld(7, 11, terminals=[43, 33], rewards=np.array([[43, 1]]), goals=[43], startingStates=[71], invalidTransitions=invalid_transitions)    
+    world = make_gridworld(7, 11, terminals=[43, 33], rewards=np.array([[43, 1]]), goals=[43], starting_states=[71], invalid_transitions=invalid_transitions)    
     
     # a dictionary that contains all employed modules
     modules = {}
-    modules['rl_interface'] = OAIGymInterface(modules, world, visual_output, main_window)
+    modules['rl_interface'] = InterfaceGridworld(modules, world, visual_output, main_window)
     
     # initialize RL agent
     rl_agent = SFMAAgent(modules['rl_interface'], 0.3, 5, 0.9, 0.9, gamma_SR=gamma_DR)

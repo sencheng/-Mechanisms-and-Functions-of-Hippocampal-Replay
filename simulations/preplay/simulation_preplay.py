@@ -4,31 +4,34 @@ import numpy as np
 import pickle
 import pyqtgraph as qg
 # framework imports
-from cobel.interfaces.oai_gym_gridworlds import OAIGymInterface
-from cobel.misc.gridworld_tools import makeGridworld
+from cobel.agents.sfma import SFMAAgent
+from cobel.interfaces.gridworld import InterfaceGridworld
+from cobel.misc.gridworld_tools import make_gridworld
 # store experiment directory
 cwd = os.getcwd()
-# change directory
-os.chdir('../..')
-# custom imports
-from agents.sfma_agent import SFMAAgent
 
 # shall the system provide visual output while performing the experiments?
 # NOTE: do NOT use visualOutput=True in parallel experiments, visualOutput=True should only be used in explicit calls to 'singleRun'! 
 visual_output = False
 
 
-def single_run(attention_arms, attention_cued, gamma=0.8, mode='default'):
+def single_run(attention_arms: float, attention_cued: float, gamma=0.8, mode='default') -> (list, np.ndarray):
     '''
     This method performs a single experimental run, i.e. one experiment.
     It has to be called by either a parallelization mechanism (without visual output),
     or by a direct call (in this case, visual output can be used).
     
-    | **Args**
-    | attention_arms:               Modulates strenght increase due to visual exploration.
-    | attention_cued:               Fraction of attention paid to either arm.
-    | gamma:                        The Default Representation's discount factor.
-    | mode:                         The replay mode that will be used.
+    Parameters
+    ----------
+    attention_arms :                    Modulates strenght increase due to visual exploration.
+    attention_cued :                    Fraction of attention paid to either arm.
+    gamma :                             The Default Representation's discount factor.
+    mode :                              The replay mode that will be used.
+    
+    Returns
+    ----------
+    replays :                           The list of generated preplays and replays.
+    C :                                 The experience strengths.
     '''
     np.random.seed()
     # this is the main window for visual output
@@ -48,11 +51,11 @@ def single_run(attention_arms, attention_cued, gamma=0.8, mode='default'):
     invalid_transitions += [(11, 10), (18, 17), (25, 24), (32, 31), (39, 38), (46, 45), (53, 52), (60, 59), (67, 66)]
     
     # initialize world            
-    world = makeGridworld(10, 7, terminals=[0, 6], rewards=np.array([[6, 1]]), goals=[6], startingStates=[63], invalidTransitions=invalid_transitions)    
+    world = make_gridworld(10, 7, terminals=[0, 6], rewards=np.array([[6, 1]]), goals=[6], starting_states=[63], invalid_transitions=invalid_transitions)    
     
     # a dictionary that contains all employed modules
     modules = {}
-    modules['rl_interface'] = OAIGymInterface(modules, world, visual_output, main_window)
+    modules['rl_interface'] = InterfaceGridworld(modules, world, visual_output, main_window)
     
     # initialize RL agent
     rl_agent = SFMAAgent(modules['rl_interface'], 0.3, 5, 0.9, 0.9, gamma_SR=gamma)
