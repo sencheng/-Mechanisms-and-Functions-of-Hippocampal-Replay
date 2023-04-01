@@ -1,7 +1,7 @@
 ## **Modeling mechanisms and functions of hippocampal replay** ##
 
-Simulation code for the computational study by Diekmann and Cheng (2023) published in eLife:
-A model of hippocampal replay driven by experience and environmental structure facilitates spatial learning
+Simulation code for the computational study by Diekmann and Cheng (2023) published in eLife:\
+A model of hippocampal replay driven by experience and environmental structure facilitates spatial learning\
 https://doi.org/10.7554/eLife.82301
 
 ----------------------------
